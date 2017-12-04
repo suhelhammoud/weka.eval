@@ -16,7 +16,7 @@ To be used with [Weka](https://www.cs.waikato.ac.nz/ml/weka) to do evaluation on
 * JSON/CVS format for results.
 * Parallel Computation.
 * JSON to CSV conversion.
-* To used easily on Amazon-EC2
+* To be used easily on Amazon-EC2
 
 #### Candidate user projects:
 
