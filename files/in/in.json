@@ -1,0 +1,13 @@
+{ "conf_delta" : 0.5,
+  "conf_start" : 0.0,
+  "conf_stop" : 1.0,
+  "indir" : "data/amazon/in",
+  "iteration" : 10,
+  "num_exec" : 2,
+  "outdir" : "data/amazon/out/1",
+  "supp_delta" : 0.01,
+  "supp_start" : 0.01,
+  "supp_stop" : 0.2,
+  "tag" : "MCAR1",
+  "rank":"CONF_SUPP_CARD"
+}
