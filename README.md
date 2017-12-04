@@ -7,7 +7,7 @@ To be used with [Weka](https://www.cs.waikato.ac.nz/ml/weka) to do evaluation on
 * Classifiers
 * Attribute Selectors
 
-#### Dependincies:
+#### Dependencies:
 * [Weka](https://www.cs.waikato.ac.nz/ml/weka)
 * [jackson](https://github.com/FasterXML/jackson)
 
