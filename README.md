@@ -14,7 +14,7 @@ To be used with [Weka](https://www.cs.waikato.ac.nz/ml/weka) to do evaluation on
 #### Intended Features:
 * Settings of experiments are in JSON format.
 * JSON/CVS format for results.
-* Parallel Computation.
+* Parallel Computation using Java8 Streams.
 * JSON to CSV conversion.
 * To be used easily on Amazon-EC2
 

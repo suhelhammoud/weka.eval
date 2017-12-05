@@ -1,0 +1,1 @@
+{"relationName":"iris","numInstances":150,"numAttributes":5,"attributes":["sepallength","sepalwidth","petallength","petalwidth","class"],"attributesTypes":["NUMERIC","NUMERIC","NUMERIC","NUMERIC","NOMINAL"],"attributesItems":[0,0,0,0,3],"classIndex":-1}
