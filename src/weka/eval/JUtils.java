@@ -33,8 +33,8 @@ public class JUtils {
                 a[floor];
     }
 
-    public static int[] aboveMedianIndexes(double[] values) {
-        double median = median(values, .75);
+    public static int[] aboveMedianIndexes(double[] values, double ratio) {
+        double median = median(values, ratio);
         return IntStream.range(0, values.length)
                 .filter(i -> values[i] >= median)
                 .toArray();
@@ -42,7 +42,8 @@ public class JUtils {
 
     public static void main(String[] args) {
         double[] a = {1, 2, 3, 4, 5, 6, 7, 8, 9};
-        System.out.println(Arrays.toString(aboveMedianIndexes(a)));
+        System.out.println(
+                Arrays.toString(aboveMedianIndexes(a, .75)));
     }
 
 }
