@@ -3,15 +3,18 @@ package weka.eval;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import weka.core.WekaPackageClassLoaderManager;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
-import java.util.StringJoiner;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * Helper Class for All Jxxxx objects
@@ -20,7 +23,7 @@ public class JObject {
     static Logger log = Logger.getLogger(JObject.class.getName());
 
     /**
-     * @param fileName       path and name of file to save the object in
+     * @param fileName       path and name ofInstances file to save the object in
      * @param obj            instance to be mapped to json object and saved
      * @param usePrettyPrint use json pretty printing format
      */
@@ -40,11 +43,11 @@ public class JObject {
     }
 
     /**
-     * Read josn file and map it into new java object intance of class : cls
+     * Read josn file and map it into new java object intance ofInstances class : cls
      *
      * @param file : File object to be read from
      * @param cls  :
-     * @return new java instance of type : cls
+     * @return new java instance ofInstances type : cls
      */
     public static <E> E read(File file, Class<E> cls) {
         E result = null;
@@ -98,4 +101,50 @@ public class JObject {
         }
         return "ERROR";
     }
+
+    /**
+     * Used to tranform java enumeration into java8 stream,
+     * candidate usage in Instances methods :enumerateInstatnces, enumerateAttributes
+     * benefit to do
+     *
+     * @param e   enumerateion
+     * @param <T> class type
+     * @return stream of T type
+     */
+    public static <T> Stream<T> enum2Stream(Enumeration<T> e) {
+        return StreamSupport.stream(
+                Spliterators.spliteratorUnknownSize(
+                        new Iterator<T>() {
+                            public T next() {
+                                return e.nextElement();
+                            }
+
+                            public boolean hasNext() {
+                                return e.hasMoreElements();
+                            }
+                        },
+                        Spliterator.ORDERED), false); //TODO: parallel flag to true later!
+    }
+
+    /**
+     * Class loader using WekaPackageClassLoaderManager
+     *
+     * @param className to be loaded (Classifier, AttributeEval, etc)
+     * @return new Instance of "className", should be casted outside this method
+     */
+    public static Optional<?> forName(String className) {
+        try {
+            Class<?> cls = WekaPackageClassLoaderManager.forName(className);
+            return Optional.ofNullable(cls.newInstance());
+        } catch (ClassNotFoundException e) {
+            log.log(Level.SEVERE, "ClassNotFound", e);
+        } catch (IllegalAccessException e) {
+            log.log(Level.SEVERE, "ClassNotFound", e);
+        } catch (InstantiationException e) {
+            log.log(Level.SEVERE, "ClassNotFound", e);
+        }
+        log.log(Level.SEVERE, "No Class ofInstances name {} where found", className);
+        return Optional.empty();
+    }
+
 }

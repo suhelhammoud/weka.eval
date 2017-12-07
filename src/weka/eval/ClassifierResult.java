@@ -33,6 +33,4 @@ public class ClassifierResult {
     double[][] confusionMatrix;
     @JsonProperty
     ClassifierTag classifierTag;
-
-
 }
