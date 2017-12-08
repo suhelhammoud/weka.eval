@@ -7,7 +7,7 @@ import weka.classifiers.rules.OneR;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-public class JClassifier {
+public class JClassifier implements JObject {
     static Logger log = Logger.getLogger(JClassifier.class.getName());
 
     @JsonProperty
@@ -27,9 +27,9 @@ public class JClassifier {
 
 
     public static void main(String[] args) {
-        Optional<Classifier> c = (Optional<Classifier>) JObject.forName("done");
+        Optional<Classifier> c = (Optional<Classifier>) JUtils.forName("done");
         System.out.println("c = " + c);
-        OneR jrip = (OneR) JObject.forName("weka.classifiers.rules.OneR").get();
+        OneR jrip = (OneR) JUtils.forName("weka.classifiers.rules.OneR").get();
         System.out.println(jrip.getTechnicalInformation().toString());
     }
 

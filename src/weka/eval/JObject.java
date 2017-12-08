@@ -3,7 +3,8 @@ package weka.eval;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import weka.core.WekaPackageClassLoaderManager;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -13,13 +14,11 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 /**
- * Helper Class for All Jxxxx objects
+ * Helper java8 interface for All Jxxxx objects, all JXXX object should implement this interface
  */
-public class JObject {
+public interface JObject {
     static Logger log = Logger.getLogger(JObject.class.getName());
 
     /**
@@ -27,7 +26,7 @@ public class JObject {
      * @param obj            instance to be mapped to json object and saved
      * @param usePrettyPrint use json pretty printing format
      */
-    public static void save(String fileName, Object obj, boolean usePrettyPrint) {
+    static void save(String fileName, Object obj, boolean usePrettyPrint) {
         try {
             ObjectWriter ow = usePrettyPrint ?
                     new ObjectMapper().writerWithDefaultPrettyPrinter() :
@@ -38,7 +37,15 @@ public class JObject {
         }
     }
 
-    public static <E> E read(String fileName, Class<E> cls) {
+    default void save(String fileName, boolean usePrettyPrint) {
+        JObject.save(fileName, this, usePrettyPrint);
+    }
+
+    default <E> E read(String fileName) {
+        return JObject.read(fileName, (Class<E>) this.getClass());
+    }
+
+    static <E> E read(String fileName, Class<E> cls) {
         return read(new File(fileName), cls);
     }
 
@@ -49,7 +56,7 @@ public class JObject {
      * @param cls  :
      * @return new java instance ofInstances type : cls
      */
-    public static <E> E read(File file, Class<E> cls) {
+    static <E> E read(File file, Class<E> cls) {
         E result = null;
         try {
             if (!file.exists()) {
@@ -71,7 +78,7 @@ public class JObject {
      * @param obj
      * @return
      */
-    public static String toString(Object obj) {
+    static String getString(Object obj) {
         // TODO: use Jackson ObjectReader rather than java reflection
         StringJoiner result = new StringJoiner(", ", "{", "}");
         Class cls = obj.getClass();
@@ -90,7 +97,11 @@ public class JObject {
         return result.toString();
     }
 
-    public static String getJsonString(Object obj) {
+    default String getString() {
+        return JObject.getString(this);
+    }
+
+    static String getJsonString(Object obj) {
         try {
             return new ObjectMapper()
                     .writerWithDefaultPrettyPrinter()
@@ -102,49 +113,53 @@ public class JObject {
         return "ERROR";
     }
 
-    /**
-     * Used to tranform java enumeration into java8 stream,
-     * candidate usage in Instances methods :enumerateInstatnces, enumerateAttributes
-     * benefit to do
-     *
-     * @param e   enumerateion
-     * @param <T> class type
-     * @return stream of T type
-     */
-    public static <T> Stream<T> enum2Stream(Enumeration<T> e) {
-        return StreamSupport.stream(
-                Spliterators.spliteratorUnknownSize(
-                        new Iterator<T>() {
-                            public T next() {
-                                return e.nextElement();
-                            }
+    default String getJsonString() {
+        return JObject.getJsonString(this);
+    }
 
-                            public boolean hasNext() {
-                                return e.hasMoreElements();
-                            }
-                        },
-                        Spliterator.ORDERED), false); //TODO: parallel flag to true later!
+
+    /**
+     * Used by all JXXX classes
+     *
+     * @param cls
+     * @param withHeaders include the columns header in schema
+     * @return
+     */
+    static CsvSchema schema(Class cls, boolean withHeaders) {
+        CsvMapper mapper = new CsvMapper();
+        return withHeaders ?
+                mapper.schemaFor(cls).withHeader() :
+                mapper.schemaFor(cls);
+    }
+
+    default CsvSchema schema(boolean withHeaders) {
+        return JObject.schema(this.getClass(), withHeaders);
+    }
+
+    static <T extends JObject> String getCsv(List<T> list, boolean withHeaders)
+            throws JsonProcessingException {
+        //TODO allow empty list, get T class using Class<T> parameter
+        assert list.size() > 0;
+        CsvSchema schema = list.get(0).schema(withHeaders);
+//        CsvSchema schema = JObject.schema(list.get(0).getClass(), withHeaders);
+        return new CsvMapper().writer(schema).writeValueAsString(list);
     }
 
     /**
-     * Class loader using WekaPackageClassLoaderManager
+     * Used for debugging only, not efficient.
      *
-     * @param className to be loaded (Classifier, AttributeEval, etc)
-     * @return new Instance of "className", should be casted outside this method
+     * @param withHeader
+     * @return
      */
-    public static Optional<?> forName(String className) {
+    default String getCsvString(boolean withHeader) {
         try {
-            Class<?> cls = WekaPackageClassLoaderManager.forName(className);
-            return Optional.ofNullable(cls.newInstance());
-        } catch (ClassNotFoundException e) {
-            log.log(Level.SEVERE, "ClassNotFound", e);
-        } catch (IllegalAccessException e) {
-            log.log(Level.SEVERE, "ClassNotFound", e);
-        } catch (InstantiationException e) {
-            log.log(Level.SEVERE, "ClassNotFound", e);
+            return new CsvMapper()
+                    .writer(this.schema(withHeader))
+                    .writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
         }
-        log.log(Level.SEVERE, "No Class ofInstances name {} where found", className);
-        return Optional.empty();
+        return "Error " + this.getString();
     }
 
 }

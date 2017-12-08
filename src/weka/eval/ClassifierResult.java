@@ -2,7 +2,7 @@ package weka.eval;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class ClassifierResult {
+public class ClassifierResult implements JObject{
     @JsonProperty
     int id;
     @JsonProperty

@@ -2,7 +2,7 @@ package weka.eval;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class JJob {
+public class JJob implements JObject {
     @JsonProperty
     String inputPath;
     @JsonProperty

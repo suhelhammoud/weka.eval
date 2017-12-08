@@ -16,7 +16,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-public class JAttributeEvaluation {
+public class JAttributeEvaluation implements JObject{
     static Logger log = Logger.getLogger(JAttributeEvaluation.class.getName());
 
     @JsonProperty
@@ -38,12 +38,12 @@ public class JAttributeEvaluation {
     double threshould;
 
     public static ASEvaluation getAttributeEvaluation(AttributeSelectorTag tag) {
-        return (ASEvaluation) JObject.forName(tag.className).get();
+        return (ASEvaluation) JUtils.forName(tag.className).get();
     }
 
     public static void runCVTest(Instances data) throws Exception {
         AttributeSelection select = new AttributeSelection();
-        InfoGainAttributeEval eval = (InfoGainAttributeEval) JObject.forName(AttributeSelectorTag.IG.className).get();
+        InfoGainAttributeEval eval = (InfoGainAttributeEval) JUtils.forName(AttributeSelectorTag.IG.className).get();
 
         select.setEvaluator(eval);
         select.setFolds(10);
@@ -97,7 +97,7 @@ public class JAttributeEvaluation {
         data.setClassIndex(data.numAttributes() - 1);
         log.info("data.relationName() = " + data.relationName());
         InfoGainAttributeEval igEval = (InfoGainAttributeEval)
-                JObject.forName(AttributeSelectorTag.IG.className).get();
+                JUtils.forName(AttributeSelectorTag.IG.className).get();
         evaluate(data, igEval, true);
     }
 }

@@ -1,5 +1,5 @@
 package weka.eval;
 
-public class JClassifierParams {
+public class JClassifierParams implements JObject {
     //TODO
 }

@@ -1,19 +1,18 @@
 package weka.eval;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import weka.core.Attribute;
 import weka.core.Instance;
 import weka.core.Instances;
-import weka.core.converters.ArffLoader;
 
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Collections;
 
-import static weka.eval.JObject.enum2Stream;
+import static weka.eval.JUtils.enum2Stream;
 
-public class JDataSet {
+public class JDataSet implements JObject {
     @JsonProperty
     String relationName;
     @JsonProperty
@@ -35,19 +34,10 @@ public class JDataSet {
     @JsonProperty
     int conitnousAttributes;
 
-    public static JDataSet ofFileName(String fileName)
-            throws IOException {
-        return ofFile(new File(fileName));
-    }
-
-    public static JDataSet ofFile(File datasetFile)
-            throws IOException {
-        return ofInstances(new Instances(new FileReader(datasetFile)));
-    }
 
     public static int getNumAttributes(Instances data, AttributeType atp) {
         //TODO check order in both: AttributeType and Attribute.
-        return (int)enum2Stream(data.enumerateAttributes())
+        return (int) enum2Stream(data.enumerateAttributes())
                 .filter(a -> a.type() == atp.ordinal())
                 .count();
     }
@@ -57,6 +47,7 @@ public class JDataSet {
                 .filter(Instance::hasMissingValue)
                 .count();
     }
+
 
     /**
      * Factory method to get JDataSet Object from Weka Instances object
@@ -69,17 +60,14 @@ public class JDataSet {
         result.relationName = data.relationName();
         result.numInstances = data.numInstances();
         result.numAttributes = data.numAttributes();
-        result.attributes =
-                enum2Stream(data.enumerateAttributes())
-                        .map(Attribute::name)
-                        .toArray(String[]::new);
+        result.attributes = enum2Stream(data.enumerateAttributes())
+                .map(Attribute::name)
+                .toArray(String[]::new);
         result.attributesTypes = enum2Stream(data.enumerateAttributes())
                 .mapToInt(Attribute::type)
                 .mapToObj(AttributeType::of)
                 .toArray(AttributeType[]::new);
-        result.attributesItems = Collections
-                .list(data.enumerateAttributes())
-                .stream()
+        result.attributesItems = enum2Stream(data.enumerateAttributes())
                 .mapToInt(Attribute::numValues)
                 .toArray();
         result.classIndex = data.classIndex();
@@ -103,7 +91,7 @@ public class JDataSet {
         JObject.save("files/tmp/ds_not_pretty.json", jdata, false);
 
         JDataSet ds = JObject.read("files/tmp/ds_not_pretty.json", JDataSet.class);
-        System.out.println("ds.toString() = " + JObject.toString(ds));
+        System.out.println("ds.getString() = " + JObject.getString(ds));
         System.out.println("ds.json = " + JObject.getJsonString(ds));
     }
 
