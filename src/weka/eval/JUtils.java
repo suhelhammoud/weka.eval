@@ -95,4 +95,8 @@ public class JUtils {
                 Arrays.toString(aboveMedianIndexes(a, .75)));
     }
 
+    public static List<String> listOf(String rawOptions) {
+        return Arrays.asList(rawOptions.split("\\s+"));
+    }
+
 }

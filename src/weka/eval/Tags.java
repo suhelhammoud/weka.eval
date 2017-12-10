@@ -6,12 +6,12 @@ package weka.eval;
  * List All general constants to be used in the application
  */
 
-enum AttributeType {
+enum TAttributeType {
     NUMERIC, NOMINAL, STRING, DATE, RELATIONAL;
 
-    private static AttributeType[] values = values();
+    private static TAttributeType[] values = values();
 
-    public static AttributeType of(int i) {
+    public static TAttributeType of(int i) {
         if (i < 0 || i > values.length - 1) {
             throw new ArrayIndexOutOfBoundsException("i out ofInstances length ofInstances values");
         }
@@ -19,36 +19,55 @@ enum AttributeType {
     }
 }
 
-enum ClassifierTag {
-    JRIP("weka.classifiers.rules.JRip"),
-    NaiveBayes("weka.classifiers.bayes.NaiveBayes");
+enum TClassifier {
+    JRIP,
+    NaiveBayes;
 
-    public final String className;
-
-    ClassifierTag(String className) {
-        this.className = className;
+    public final String className() {
+        return TClassName.of(this);
     }
 }
 
-enum FilterTag {
+enum TFilter {
     PAS, EN, MCHI;
 }
 
-enum AttributeSelectorTag {
+enum TAttributeSearch {
+    Ranker, BestFirst;
+}
+
+enum TAttributeEvaluator {
+    IG, CHI, VA, VACFS, CFS, L2;
+
+    public final String className() {
+        return TClassName.of(this);
+    }
+}
+
+enum TThresholdType {
+    LEVEL, MEDIAN, EAS
+}
+
+enum TClassName {
+    AttributeSelection("weka.filters.supervised.attribute.AttributeSelection"),
     IG("weka.attributeSelection.InfoGainAttributeEval"),
     CHI("weka.attributeSelection.ChiSquaredAttributeEval"),
     VA("weka.attributeSelection.Va"),
     VACFS("weka.attributeSelection.VaCfsEval"),
     CFS("weka.attributeSelection.CfsSubsetEval"),
-    L2("weka.attributeSelection.L2AttributeEval");
+    L2("weka.attributeSelection.L2AttributeEval"),
+    JRIP("weka.classifiers.rules.JRip"),
+    NaiveBayes("weka.classifiers.bayes.NaiveBayes"),
+    Ranker("weka.attributeSelection.Ranker"),
+    BestFirst("weka.attributeSelection.BestFirst");
 
-    public final String className;
+    final public String className;
 
-    AttributeSelectorTag(String className) {
-        this.className = className;
+    TClassName(String cn) {
+        className = cn;
     }
-}
 
-enum AttributeThresholdType {
-    LEVEL, MEDIAN, EAS
+    public static String of(Enum enm) {
+        return valueOf(enm.name()).className;
+    }
 }

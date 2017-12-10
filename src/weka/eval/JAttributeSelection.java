@@ -1,5 +1,6 @@
 package weka.eval;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import weka.attributeSelection.ASEvaluation;
 import weka.attributeSelection.AttributeSelection;
@@ -9,41 +10,47 @@ import weka.core.Instances;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-public class JAttributeEvaluation implements JObject{
-    static Logger log = Logger.getLogger(JAttributeEvaluation.class.getName());
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class JAttributeSelection implements JObject{
+    static Logger log = Logger.getLogger(JAttributeSelection.class.getName());
 
     @JsonProperty
     JDataSet dataSet;
 
     @JsonProperty
-    AttributeSelectorTag selector;
+    TAttributeEvaluator tEvaluator;
 
     @JsonProperty
-    AttributeThresholdType thresholdType;
+    JAttributeEvaluator evaluator;
 
     @JsonProperty
-    double[] attributesRanks;
-
+    TAttributeSearch tSearch;
     @JsonProperty
-    int numAttributeToSelect;
+    JAttributeSearch search;
 
-    @JsonProperty
-    double threshould;
+    public static ASEvaluation getAttributeEvaluation(TAttributeEvaluator tag) {
+        return (ASEvaluation) JUtils.forName(tag.className()).get();
+    }
 
-    public static ASEvaluation getAttributeEvaluation(AttributeSelectorTag tag) {
-        return (ASEvaluation) JUtils.forName(tag.className).get();
+    public String[] getOptions(boolean withClassName) {
+        List<String> result = new ArrayList<>();
+        result.add(TClassName.AttributeSelection.className);
+
+        result.add("-E");
+        result.add("\"" + String.join(" ", evaluator.getOptions(true)) + "\"");
+        result.add("-S");
+        result.add("\"" + String.join(" ", search.getOptions(true)) + "\"");
+        return result.toArray(new String[0]);
     }
 
     public static void runCVTest(Instances data) throws Exception {
         AttributeSelection select = new AttributeSelection();
-        InfoGainAttributeEval eval = (InfoGainAttributeEval) JUtils.forName(AttributeSelectorTag.IG.className).get();
+        InfoGainAttributeEval eval = (InfoGainAttributeEval) JUtils.forName(TAttributeEvaluator.IG.className()).get();
 
         select.setEvaluator(eval);
         select.setFolds(10);
@@ -97,7 +104,7 @@ public class JAttributeEvaluation implements JObject{
         data.setClassIndex(data.numAttributes() - 1);
         log.info("data.relationName() = " + data.relationName());
         InfoGainAttributeEval igEval = (InfoGainAttributeEval)
-                JUtils.forName(AttributeSelectorTag.IG.className).get();
+                JUtils.forName(TAttributeEvaluator.IG.className()).get();
         evaluate(data, igEval, true);
     }
 }

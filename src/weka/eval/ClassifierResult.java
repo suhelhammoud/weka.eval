@@ -32,5 +32,5 @@ public class ClassifierResult implements JObject{
     @JsonProperty
     double[][] confusionMatrix;
     @JsonProperty
-    ClassifierTag classifierTag;
+    TClassifier classifierTag;
 }

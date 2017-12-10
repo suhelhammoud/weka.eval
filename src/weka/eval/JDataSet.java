@@ -1,8 +1,6 @@
 package weka.eval;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.dataformat.csv.CsvMapper;
-import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import weka.core.Attribute;
 import weka.core.Instance;
 import weka.core.Instances;
@@ -22,7 +20,7 @@ public class JDataSet implements JObject {
     @JsonProperty
     String[] attributes;
     @JsonProperty
-    AttributeType[] attributesTypes;
+    TAttributeType[] attributesTypes;
     @JsonProperty
     int[] attributesItems;
     @JsonProperty
@@ -35,8 +33,8 @@ public class JDataSet implements JObject {
     int conitnousAttributes;
 
 
-    public static int getNumAttributes(Instances data, AttributeType atp) {
-        //TODO check order in both: AttributeType and Attribute.
+    public static int getNumAttributes(Instances data, TAttributeType atp) {
+        //TODO check order in both: TAttributeType and Attribute.
         return (int) enum2Stream(data.enumerateAttributes())
                 .filter(a -> a.type() == atp.ordinal())
                 .count();
@@ -65,8 +63,8 @@ public class JDataSet implements JObject {
                 .toArray(String[]::new);
         result.attributesTypes = enum2Stream(data.enumerateAttributes())
                 .mapToInt(Attribute::type)
-                .mapToObj(AttributeType::of)
-                .toArray(AttributeType[]::new);
+                .mapToObj(TAttributeType::of)
+                .toArray(TAttributeType[]::new);
         result.attributesItems = enum2Stream(data.enumerateAttributes())
                 .mapToInt(Attribute::numValues)
                 .toArray();
